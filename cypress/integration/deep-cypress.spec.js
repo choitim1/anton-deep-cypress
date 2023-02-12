@@ -37,14 +37,14 @@ it("should do open conduit in window", () => {
   // ! что этот код делает?
   cy.window().then((window) => {
     cy.stub(window, "open").callsFake((url) => {
-      console.log("we have implemented own window.open function");
+      //concole.log("we have implemented own window.open function");
       window.location = url;
     });
   });
   cy.get("@section").find("button").click();
   cy.title().should("contain", "Conduit");
 });
-it("should do replace prompt", () => {
+it.only("should do replace prompt", () => {
   cy.get("section[data-cy=replace-prompt]").as("section");
 
   cy.window().then((window) => {
