@@ -44,7 +44,7 @@ it("should do open conduit in window", () => {
   cy.get("@section").find("button").click();
   cy.title().should("contain", "Conduit");
 });
-it.only("should do replace prompt", () => {
+it("should do replace prompt", () => {
   cy.get("section[data-cy=replace-prompt]").as("section");
 
   cy.window().then((window) => {
@@ -57,10 +57,41 @@ it.only("should do replace prompt", () => {
       .as("replacedWindowPrompt");
   });
 
+  //! also working
+  // cy.window().then((window) => {
+  //   cy.stub(window, "prompt").returns("XYZ").as("replacedWindowPrompt");
+  // });
+
   cy.get("@section").find("button").click();
   cy.get("@replacedWindowPrompt").should("have.been.called");
   cy.get("@section")
     .find("button")
     .invoke("css", "background-color")
     .should("eq", "rgb(255, 0, 0)");
+});
+
+it.only("should do replace button click", () => {
+  cy.get("section[data-cy=replace-button-click]").as("section");
+
+  cy.window().then((window) => {
+    return cy
+      .stub()
+      .callsFake(() => {
+        console.log("we have implemented own button click function");
+        window.location = "https://demo.realworld.io/";
+      })
+      .as("fakeClick");
+  });
+
+  cy.get("@fakeClick").then((fake) => {
+    return cy
+      .get("@section")
+      .find("button")
+      .invoke("off", "click")
+      .invoke("on", "click", fake)
+      .click();
+  });
+
+  cy.get("@fakeClick").should("have.been.called");
+  cy.title().should("contain", "Conduit");
 });
