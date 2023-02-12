@@ -70,14 +70,14 @@ it("should do replace prompt", () => {
     .should("eq", "rgb(255, 0, 0)");
 });
 
-it.only("should do replace button click", () => {
+it("should do replace button click", () => {
   cy.get("section[data-cy=replace-button-click]").as("section");
-
+  //! когда нет тега <a>
   cy.window().then((window) => {
     return cy
       .stub()
       .callsFake(() => {
-        console.log("we have implemented own button click function");
+        //console.log("we have implemented own button click function");
         window.location = "https://demo.realworld.io/";
       })
       .as("fakeClick");
@@ -94,4 +94,58 @@ it.only("should do replace button click", () => {
 
   cy.get("@fakeClick").should("have.been.called");
   cy.title().should("contain", "Conduit");
+});
+it("should do open conduit signup in iframe", () => {
+  // only for demonstration `its`
+  const iframes = [
+    {
+      contentDocument: {
+        body: "<p>Hello from body of iframe document</p>",
+      },
+    },
+  ];
+  cy.wrap(iframes).its("0.contentDocument.body").should("not.be.empty");
+
+  cy.get("section[data-cy=open-conduit-in-iframe]").as("section");
+  cy.get("@section")
+    .find("iframe")
+    .its("0.contentDocument.body")
+    .should("not.be.empty")
+    .as("conduit");
+  cy.get("@conduit").find('.navbar a[href$="/register"]').click();
+  cy.get("@conduit").find(".auth-page h1").should("have.text", "Sign up");
+});
+it.only("should do check hello from user", () => {
+  cy.get("section[data-cy=hello-from-user]").as("section");
+  //cy.get("@section").find("user-web-component").as("user");
+  cy.get("@section").find("user-web-component").shadow().as("user");
+  cy.get("@user")
+    .find("p.hello")
+    .invoke("text", "ello1")
+    // .then((text) => {
+    //   cy.log(text);
+    // })
+    // cy.get('p').invoke('text').then((text) => {
+    //   const newText = text.replace('old text', 'new text');
+    //   cy.get('p').type(newText);
+    // });
+    .should("contain.text", "ello1");
+});
+it("should do change DOM", () => {
+  cy.get("section[data-cy=change-dom]").as("section").scrollIntoView();
+  cy.get("@section").find("p").as("message");
+  cy.get("@message").invoke("css", "background-color", "rgb(0, 128, 0)");
+  cy.get("@message").should("have.css", "background-color", "rgb(0, 128, 0)");
+  // wait just for demo
+  cy.wait(2000);
+  cy.get("@message").invoke("css", "background-color", "rgb(128, 0, 0)");
+  cy.get("@message").should("have.css", "background-color", "rgb(128, 0, 0)");
+
+  const phone = "+7 920 736-12-49";
+  cy.window().invoke("callMe", phone);
+
+  cy.get("@section").should(
+    "contain",
+    '<a href="tel:' + phone + '">' + phone + "</a>"
+  );
 });
