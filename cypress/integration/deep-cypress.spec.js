@@ -115,7 +115,7 @@ it("should do open conduit signup in iframe", () => {
   cy.get("@conduit").find('.navbar a[href$="/register"]').click();
   cy.get("@conduit").find(".auth-page h1").should("have.text", "Sign up");
 });
-it.only("should do check hello from user", () => {
+it("should do check hello from user", () => {
   cy.get("section[data-cy=hello-from-user]").as("section");
   //cy.get("@section").find("user-web-component").as("user");
   cy.get("@section").find("user-web-component").shadow().as("user");
@@ -131,6 +131,7 @@ it.only("should do check hello from user", () => {
     // });
     .should("contain.text", "ello1");
 });
+
 it("should do change DOM", () => {
   cy.get("section[data-cy=change-dom]").as("section").scrollIntoView();
   cy.get("@section").find("p").as("message");
@@ -144,8 +145,54 @@ it("should do change DOM", () => {
   const phone = "+7 920 736-12-49";
   cy.window().invoke("callMe", phone);
 
-  cy.get("@section").should(
-    "contain",
-    '<a href="tel:' + phone + '">' + phone + "</a>"
-  );
+  cy.get("@section")
+    .invoke("html")
+    .should("contain", '<a href="tel:' + phone + '">' + phone + "</a>");
+});
+
+it("should do check mouse move", () => {
+  cy.get("section[data-cy=mouse-move]").as("section");
+  cy.get("@section").find(".canvas").as("canvas");
+
+  for (let i = 200; i < 610; i += 10) {
+    const x = 100 + i;
+    const y = 100 + Math.sin(i / 20) * 20;
+    cy.get("@canvas").trigger("mousemove", 100 + i, y);
+    cy.wait(150);
+  }
+
+  cy.get("@canvas").find(".success").should("have.text", "You win!");
+});
+
+it("should do check long mouse down", () => {
+  cy.get("section[data-cy=mouse-long-down]").as("section");
+  cy.get("@section").find("button").as("button").trigger("mousedown");
+  cy.wait(3000);
+  cy.get("@button").should("contain.text", "3.00 sec.");
+  cy.get("@button").trigger("mouseup");
+});
+
+it("should do check in mobile", () => {
+  cy.get("section[data-cy=check-in-mobile]")
+    .should("be.visible")
+    .as("section")
+    .scrollIntoView();
+  cy.get("@section")
+    .find("iframe")
+    .as("giphy")
+    .should("have.css", "opacity", "0");
+  cy.viewport("iphone-4");
+  cy.get("@giphy").should("have.css", "opacity", "1");
+});
+it.only("should do make screenshots", () => {
+  cy.get("section[data-cy=make-screenshots]")
+    .should("be.visible")
+    .as("section")
+    .scrollIntoView();
+  cy.get("@section").screenshot("before");
+  cy.get("@section")
+    .find("input[name=user]")
+    .type("Anton")
+    .invoke("css", "background", "green");
+  cy.get("@section").screenshot("after");
 });
