@@ -184,7 +184,7 @@ it("should do check in mobile", () => {
   cy.viewport("iphone-4");
   cy.get("@giphy").should("have.css", "opacity", "1");
 });
-it.only("should do make screenshots", () => {
+it("should do make screenshots", () => {
   cy.get("section[data-cy=make-screenshots]")
     .should("be.visible")
     .as("section")
@@ -196,3 +196,111 @@ it.only("should do make screenshots", () => {
     .invoke("css", "background", "green");
   cy.get("@section").screenshot("after");
 });
+
+it("should do catch get user HTTP request", () => {
+  cy.get("section[data-cy=catch-http]").should("be.visible").as("section");
+  cy.get("@section").find("button").as("button").click();
+
+  cy.get("@section")
+    .find(".info")
+    .as("info")
+    .should("have.text", "Leanne Graham");
+
+  cy.intercept("GET", "/users/1", {
+    statusCode: 200,
+    body: {
+      name: "Tim Marley",
+      telegram: "https://t.me/epic_one_hour",
+    },
+  }).as("loadUser");
+
+  cy.get("@button").click();
+  cy.wait("@loadUser");
+
+  cy.get("@info").should("have.text", "Tim Marley");
+});
+
+describe("Navigation", () => {
+  beforeEach(() => {
+    cy.get("section[data-cy=navigation]").should("be.visible").as("navigation");
+  });
+
+  it("should navigate by path", () => {
+    cy.get("@navigation").find("a.path").click();
+    cy.location("pathname").should("eq", "/");
+  });
+
+  it("should navigate by query", () => {
+    cy.get("@navigation").find("a.query").click();
+    cy.location("search").should("eq", "?q=test");
+  });
+
+  it("should navigate by hash", () => {
+    cy.get("@navigation").find("a.hash").click();
+    cy.location("hash").should("eq", "#/page");
+  });
+});
+
+it("should do grab users", () => {
+  cy.get("section[data-cy=grab-users]")
+    .should("be.visible")
+    .as("section")
+    .scrollIntoView();
+
+  cy.get("@section")
+    .find("table tbody tr")
+    .should("have.length.greaterThan", 0)
+    .then((rows) => {
+      let users = [];
+      for (const row of rows) {
+        const user = [];
+        for (const cell of row.children) {
+          user.push(cell.innerText);
+        }
+        users.push(user);
+      }
+      return users;
+    })
+    .as("users");
+
+  cy.get("@users").then((users) => cy.writeFile("tmp/users.json", users));
+  cy.readFile("tmp/users.json")
+    .should("not.be.empty")
+    .then((users) => {
+      cy.log(users);
+    });
+});
+
+it.only("should do check hero", () => {
+  console.log("a");
+  cy.log("a");
+
+  let ourHero = "Spider Man";
+
+  const asyncOperation = new Cypress.Promise((done) => {
+    setTimeout(() => {
+      done("Iron Man");
+    }, 2000);
+  });
+
+  cy.wrap(asyncOperation)
+    .then((hero) => {
+      console.log("b");
+      cy.log("b");
+
+      ourHero = hero;
+      cy.log(ourHero);
+    })
+    .as("hero");
+
+  console.log("c");
+  cy.log("c");
+
+  console.log(ourHero);
+
+  cy.get("@hero").should("eq", "Iron Man");
+});
+
+
+//! https://www.epic1h.com/deep_cypress 
+//! https://github.com/open-tutorials/cypress/blob/main/cypress/integration/deep-cypress.spec.js

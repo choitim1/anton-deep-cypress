@@ -188,7 +188,7 @@
                     button.innerHTML = 'You pressing ' + i.toFixed(2) + ' sec.';
                 }, 100);
 
-                document.onmouseup = () => {
+                document.ontimermouseup = () => {
                     clearInterval(timer);
                     button.innerHTML = 'Press me long';
                     button.style.backgroundColor = 'silver';
