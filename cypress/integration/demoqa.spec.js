@@ -32,18 +32,10 @@ describe("sdfg", () => {
     cy.get(".border").within(() => {
       cy.get("#name").invoke("text").should("contain", "Name:test");
       cy.get("#email").invoke("text").should("contain", "test@mail.ru");
+      cy.get ("#currentAddress").invoke('text').should('contain','6906 S 28th W. Ave');
+      cy.get ("#permanentAddress").invoke('text').should('contain','kok301')
     });
 
-    // const input = ['test', 'test@mail.ru"', '6906 S 28th W. Ave','6906 S 28th W. Ave'];
-    // cy.get('div[class="border col-md-12 col-sm-12"]').as('data')
 
-    //     data.array.forEach(element => {
-
-    //     });(() => {
-    //         const url = urls[index];
-    //         console.log('checking URL for link with index =', index);
-    //         cy.wrap(link).invoke('attr', 'href')
-    //             .should('eq', url);
-    //     });
   });
 });
